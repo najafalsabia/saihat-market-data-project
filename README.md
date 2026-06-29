@@ -17,7 +17,7 @@ This project automates the extraction of localized business data across **30 dif
 ## 📂 Repository Structure
 * 📄 `scraperCode.py` — The core asynchronous web scraper script.
 * 📊 `saihat_google_maps_dataset.csv` — The raw initial dataset collected.
-* 🛠️ `data_cleaning.py` — *(Next Step)* Script for data cleaning and exploration.
+* 🛠️ `data_cleaning.py` — Script for data cleaning and exploration.
 
 ---
 
