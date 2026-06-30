@@ -1,0 +1,139 @@
+# Data Pipeline Documentation
+
+This documentation provides a comprehensive and detailed overview of the technical lifecycle of the project. It covers the automated distributed data collection stage (Data Scraping) from Google Maps, followed by the engineering and cleaning phases (Data Cleaning & Preprocessing), and concludes with data insights, Geospatial Graphical Analysis, and future system expansions.
+
+---
+
+## 📌 Table of Contents
+1. [Data Overview](#1-data-overview)
+2. [Data Scraping Phase](#2-data-scraping-phase)
+3. [Data Cleaning & Preprocessing](#3-data-cleaning--preprocessing)
+4. [Data Analysis & Geospatial Insights](#4-data-analysis--geospatial-insights)
+5. [Interactive Dashboard & AI Integration (Future Milestone)](#5-interactive-dashboard--ai-integration-future-milestone)
+
+---
+
+## 1. Data Overview
+* **Data Description:** This project focuses on building an integrated geospatial dataset for establishments, public services, commercial activities, and government facilities within Saihat City.
+* **Target Platform:** Google Maps, accessed via its localized Arabic interface (`hl=ar`) to capture native business naming conventions.
+* **Methodological Approach:** Data collection was scaled using a split-workload, distributed processing strategy across multiple local nodes to systematically cover all commercial and municipal sectors of the city.
+* **Strategic Objective:** To provide clean, reliable, and highly structured data to perform advanced graphical and geospatial analysis. By mapping precise coordinates and user engagement metrics (ratings and review counts), the project aims to visualize the geographic density of facilities, discover commercial sector distributions, and identify underserved service areas to support smart-city infrastructure development.
+
+---
+
+## 2. Data Scraping Phase
+In this stage, an advanced custom scraper was engineered for automated data extraction using the modern **Playwright** framework implemented within an asynchronous architecture (`asyncio`).
+
+### A. Tech Stack & Dependencies
+* **`Playwright (Async API)`**: Utilized to launch Chromium browser instances and simulate real human browsing behaviors (searching, navigating, and expanding dynamic web pages).
+* **`Asyncio`**: Used to manage asynchronous, non-blocking tasks efficiently, maximizing data extraction speed.
+* **`Pandas`**: Employed to manage the structured tabular data and incrementally update the dataset.
+* **`Regular Expressions (re)`**: Used for initial text normalization, extracting postal Plus Codes, and parsing coordinates from live URLs.
+
+### B. Distributed Execution & Parallel Processing Architecture
+To optimize scraping throughput and drastically minimize total collection time, the data collection pipeline was deployed utilizing a **Distributed Parallel Architecture**:
+* **Workload Partitioning (60 Total Keywords):** The master search strategy relied on a highly comprehensive dictionary of 60 targeted localized keywords, which was evenly bisected into two distinct workloads (30 unique keywords per node) running simultaneously across two separate machine nodes (the laptops of both development teammates).
+  * **Node 1 (Teammate Laptop A):** Focused on localized commercial and standard utility services, executing 30 custom keywords:
+    ```python
+    keywords_node_1 = [
+        "شركات في سيهات", "مكاتب استشارات في سيهات", "شركات مقاولات في سيهات", 
+        "مكاتب توظيف في سيهات", "شركات شحن في سيهات", "مكاتب عقارية في سيهات",
+        "مكاتب محاماة في سيهات", "مكاتب محاسبة في سيهات", "حلاق في سيهات", 
+        "صالون تجميل في سيهات", "صيدليات في سيهات", "مستوصفات في سيهات", 
+        "سوبرماركت في سيهات", "مخابز في سيهات", "محطات وقود في سيهات", 
+        "مساجد في سيهات", "صالات رياضية في سيهات", "مكتبات في سيهات", 
+        "محلات ملابس في سيهات", "ورش سيارات في سيهات", "مراكز تسوق في سيهات", 
+        "عيادات أسنان في سيهات", "خياط في سيهات", "محلات عطور في سيهات", 
+        "مغاسل سيارات في سيهات", "محلات جوالات في سيهات", "مطابع في سيهات", 
+        "مراكز تدريب في سيهات", "محلات أثاث في سيهات", "مغاسل ملابس في سيهات"
+    ]
+    ```
+  * **Node 2 (Teammate Laptop B):** Focused on critical infrastructure, public administration, and specialized amenities, executing 30 custom keywords:
+    ```python
+    keywords_node_2 = [
+        "مراكز شرطة في سيهات", "الدفاع المدني في سيهات", "البريد السعودي في سيهات", "جمعيات خيرية في سيهات", "مستشفيات في سيهات",
+        "مدارس بنين في سيهات", "مدارس بنات في سيهات", "رياض أطفال في سيهات", "حدائق عامة في سيهات", "قاعات أفراح في سيهات",
+        "كورنيش سيهات", "بنوك ومصارف في سيهات", "فنادق وشقق مفروشة في سيهات", "مكاتب استقدام في سيهات", "محلات نظارات في سيهات",
+        "محلات حلويات في سيهات", "كافيهات في سيهات", "مطاعم في سيهات", "محامص ومكسرات في سيهات", "أجهزة صراف آلي في سيهات",
+        "مكاتب سفر وسياحة في سيهات", "محلات ألعاب أطفال في سيهات", "ملاعب كرة قدم في سيهات", "نوادي رياضية نسائية في سيهات", "معارض سيارات في سيهات",
+        "محلات أسماك في سيهات", "محلات زهور وهدايا في سيهات", "مراكز علاج طبيعي في سيهات", "مختبرات طبية في سيهات", "عيادات بيطرية في سيهات"
+    ]
+    ```
+* **Localized Scraping:** Each independent node processed its target partition asynchronously, generating partial output collections.
+* **Pipeline Synthesis (Merging Phase):** A custom compilation script was executed to perform a loss-less structural merge of the localized dataset partitions, synthesis-mapping them into a unified multi-variant database saved as `saihat_google_maps_merged.csv`.
+
+### C. Initial Target Schema
+The compiled raw dataset initialized and successfully extracted **15 distinct structural attributes (columns)** directly from the Google Maps interface:
+* **Core Entity Information:** `name_ar` (Business Name), `category` (Business Type), `full_address` (Full Text Address), `phone_number` (Raw Contact Number), `website` (Official URL).
+* **Consumer Metrics:** `rating` (Star Rating), `price_range` (Initial Price Indicator).
+* **Geospatial & Status Metadata:** `latitude` (Latitude Coordinate), `longitude` (Longitude Coordinate), `plus_code` (Google Plus Code), `opening_times` (Single-day Operational Schedule), `opening_status` (Live Status, e.g., "Open Now"), `city_ar` (City - Saihat), `region_ar` (Region - Eastern Province), `Maps_url` (Definitive Map Link).
+
+### D. Data Integrity & Quality Safeguards
+* **On-the-fly Geospatial Filtering:** Within the `append_to_csv` function, a strict textual validator checked the address and name fields. If the string "سيهات" or "Saihat" was entirely absent, the script immediately logged a `[SKIPPED]` entry, isolating the records strictly to the targeted geographical boundary.
+* **Incremental, Safe Commitments:** Records were committed and saved dynamically using the proper `utf-8-sig` encoding (fully preserving Arabic text formatting) to protect the data from corruption or loss in the event of manual script interruptions (`KeyboardInterrupt`).
+
+---
+
+## 3. Data Cleaning & Preprocessing
+After collecting the raw records (`saihat_google_maps_merged.csv`), an extensive, multi-staged data engineering and preprocessing pipeline was executed to guarantee data consistency, integrity, and readiness for graphical analysis.
+
+<details>
+<summary><b>🛠️ Click to expand the detailed Data Cleaning steps</b></summary>
+
+### A. Two-Phase De-duplication
+Duplicate entries arising from overlapping query categories were thoroughly eliminated using a dual-filtering strategy:
+* **Initial Drop:** Redundant rows were evaluated based on the unique `Maps_url`.
+* **Secondary Refinement:** A rigorous structural de-duplication cross-referenced business names and spatial properties, resolving any structural overlaps and saving the unified clean state into `saihat_google_maps_deduplicated.csv`.
+
+### B. Feature Standardization & Normalization
+* **Phone Numbers:** Contact details were unified into a standardized international string format. 
+* **Phone Type Classification:** A new feature mapping column (`phone_type`) was established to categorize contacts systematically into three distinct communication channels based on Saudi local standards: **Mobile**, **Landline**, and **Unified Numbers** (e.g., 9200/800 corporate lines).
+* **Websites:** Corporate URLs and anchor links were normalized to fix encoding distortions and ensure standard web protocols.
+
+### C. Addressing Structural Data Gaps (Iterative Targeted Re-scraping)
+During initial dataset inspection of `saihat_google_maps_deduplicated.csv`, major structural limitations and missingness were quantified:
+1. **Extreme Feature Sparsity (`price_range`):** The `price_range` attribute was highly constrained, resulting in 1,147 out of 1,166 total rows (approximately 98.3%) being null. Retaining a column with this level of missingness introduces structural noise and offers no analytical value.
+2. **Incomplete Schedule Information (`opening_times`):** The initial scraping phase only captured operating hours for a single day (the day of execution) instead of extracting the full weekly schedule.
+
+* **The Engineering Solution:** A secondary, targeted scraping pipeline (`update_opening_times.py`) was deployed to overcome these limitations and significantly enhance data quality, producing the updated dataset (`saihat_google_maps_updated.csv`).
+* **Feature Substitution (`reviews_count`):** Because the `price_range` column was dropped due to extreme sparsity, the `reviews_count` feature was extracted during the second pipeline execution as a robust alternative to capture consumer engagement and establishment popularity. 
+* **Logical Schema Realignment:** To ensure structural consistency and a more logical layout, the newly acquired `reviews_count` column was repositioned directly next to the `rating` feature.
+* **Full Schedule Retrieval:** The secondary pipeline successfully resolved the temporal limitation, capturing complete, structured 7-day operational schedules into JSON objects within the `opening_times` column.
+
+### D. Advanced Precision Cleaning & Casting
+* **Float-to-String Cast Correction:** Due to the presence of missing values (NaN) in the phone numbers within the initial dataset, Pandas automatically upcasted the column data type to a `float`, appending an undesirable `.0` to the end of the phone digits. This was resolved by explicitly cleaning the digits, casting the column to a pure textual string format, and stripping the trailing `.0` to prevent structural formatting corruption.
+
+### E. Manual Geospatial Ground-Truth Imputation
+Because the strategic goal of this project requires highly accurate graphical mapping, missing spatial coordinates could not be ignored:
+* The dataset revealed exactly **16 missing coordinate pairs** (Latitude/Longitude).
+* Instead of dropping these rows and losing valuable data, a meticulous **manual imputation process** was conducted. Each location was searched manually via Google Maps to retrieve its definitive ground-truth latitude and longitude, achieving 100% geospatial completeness across all rows before finalized textual sanitation.
+
+### F. Unicode Noise Removal & Final Polish
+* **Unicode Noise Removal:** As the absolute final polishing layer, hidden formatting characters and structural noise—specifically the Invisible Left-to-Right Mark (`[U+200E]`) caused by bi-directional Arabic/English text wrapping—were stripped entirely from the `full_address` and `name_ar` columns to ensure seamless pattern matching and visual clean rendering.
+
+The finalized, high-purity dataset was saved as `saihat_google_maps_updated.csv`.
+
+</details>
+
+---
+
+## 4. Data Analysis & Geospatial Insights
+This phase translates the structured, cleaned data into visual intelligence using advanced graphical mapping tools:
+* **Geospatial Density Mapping (Graphical Analysis):** Using the extracted coordinates, a comprehensive interactive map of Saihat was generated to visualize business distribution. Establishments are categorized and color-coded dynamically (e.g., Retail & Shopping, Restaurants & Cafes, Beauty & Personal Care).
+* **Key Visual Indicators Captured:**
+  * **Commercial Hotspots:** Identification of dense clusters along main roads and central hubs within Saihat.
+  * **Category Distribution:** Immediate visual assessment of category sizes, tracking dominant sectors like "تجزئة وتسوق" (163 entries) and "مطاعم ومقاهي" (138 entries) against emerging sectors.
+  * **Interactive Feature Identification:** Interactive markers allowing real-time pop-ups of localized entities (e.g., displaying names and sub-categories such as language schools like "مركز نوب الآفاق").
+
+---
+
+## 5. Interactive Dashboard & AI Integration (Future Milestone)
+To make the extracted insights actionable and easily accessible, the final phase of this project involves deploying an interactive analytical dashboard. 
+
+Instead of traditional manual front-end development, the deployment pipeline will leverage **AI-assisted development tools and automated low-code/no-code framework integrations** to build and optimize the user interface efficiently.
+
+### Key Components of the Proposed Dashboard:
+* **Interactive Geospatial Map Integration:** Embedding the generated Folium/Leaflet graphical map directly into the dashboard interface, preserving multi-category toggle filters.
+* **Service Density & Market Insights:** Dynamic charts illustrating which business categories are most dominant and identifying potential gaps or underserved sectors in the city.
+* **Operational Analytics:** Interactive filters displaying real-time operational statuses and peak working hours across different commercial zones.
+* **AI-Driven Analytics:** Utilizing embedded AI assistance to automatically generate summary metrics, detect anomalies in ratings, or provide natural language summaries of the dataset's top trends.
