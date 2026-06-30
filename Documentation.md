@@ -1,6 +1,6 @@
 # Data Pipeline Documentation
 
-This documentation provides a comprehensive and detailed overview of the technical lifecycle of the project. It covers the automated distributed data collection stage (Data Scraping) from Google Maps, followed by the engineering and cleaning phases (Data Cleaning & Preprocessing), and concludes with data insights, Geospatial Graphical Analysis, and future system expansions.
+This documentation provides a comprehensive and detailed overview of the technical lifecycle of the project. It covers the automated distributed data collection stage (Data Scraping) from Google Maps, followed by the engineering and cleaning phases (Data Cleaning & Preprocessing), and concludes with data insights and Geospatial Graphical Analysis.
 
 ---
 
@@ -9,7 +9,6 @@ This documentation provides a comprehensive and detailed overview of the technic
 2. [Data Scraping Phase](#2-data-scraping-phase)
 3. [Data Cleaning & Preprocessing](#3-data-cleaning--preprocessing)
 4. [Data Analysis & Geospatial Insights](#4-data-analysis--geospatial-insights)
-5. [Interactive Dashboard & AI Integration (Future Milestone)](#5-interactive-dashboard--ai-integration-future-milestone)
 
 ---
 
@@ -17,7 +16,7 @@ This documentation provides a comprehensive and detailed overview of the technic
 * **Data Description:** This project focuses on building an integrated geospatial dataset for establishments, public services, commercial activities, and government facilities within Saihat City.
 * **Target Platform:** Google Maps, accessed via its localized Arabic interface (`hl=ar`) to capture native business naming conventions.
 * **Methodological Approach:** Data collection was scaled using a split-workload, distributed processing strategy across multiple local nodes to systematically cover all commercial and municipal sectors of the city.
-* **Strategic Objective:** To provide clean, reliable, and highly structured data to perform advanced graphical and geospatial analysis. By mapping precise coordinates and user engagement metrics (ratings and review counts), the project aims to visualize the geographic density of facilities, discover commercial sector distributions, and identify underserved service areas to support smart-city infrastructure development.
+* **Strategic Objective:** To provide clean, reliable, and highly structured data to perform advanced graphical and geospatial analysis. By mapping precise coordinates and user engagement metrics (ratings and review counts), the project successfully visualizes the geographic density of facilities, discovers commercial sector distributions, and identifies operational patterns across Saihat City to support smart-city infrastructure development.
 
 ---
 
@@ -37,7 +36,7 @@ To optimize scraping throughput and drastically minimize total collection time, 
     ```python
     keywords_node_1 = [
         "شركات في سيهات", "مكاتب استشارات في سيهات", "شركات مقاولات في سيهات", 
-        "مكاتب توظيف في سيهات", "شركات شحن في سيهات", "مكاتب عقارية في سيهات",
+        "مكاتب توظيف في سيهات", "شركات شحن في سيهات", "مكاتب عقارية in سيهات",
         "مكاتب محاماة في سيهات", "مكاتب محاسبة في سيهات", "حلاق في سيهات", 
         "صالون تجميل في سيهات", "صيدليات في سيهات", "مستوصفات في سيهات", 
         "سوبرماركت في سيهات", "مخابز في سيهات", "محطات وقود في سيهات", 
@@ -118,22 +117,23 @@ The finalized, high-purity dataset was saved as `saihat_google_maps_updated.csv`
 ---
 
 ## 4. Data Analysis & Geospatial Insights
-This phase translates the structured, cleaned data into visual intelligence using advanced graphical mapping tools:
-* **Geospatial Density Mapping (Graphical Analysis):** Using the extracted coordinates, a comprehensive interactive map of Saihat was generated to visualize business distribution. Establishments are categorized and color-coded dynamically (e.g., Retail & Shopping, Restaurants & Cafes, Beauty & Personal Care).
-* **Key Visual Indicators Captured:**
-  * **Commercial Hotspots:** Identification of dense clusters along main roads and central hubs within Saihat.
-  * **Category Distribution:** Immediate visual assessment of category sizes, tracking dominant sectors like "تجزئة وتسوق" (163 entries) and "مطاعم ومقاهي" (138 entries) against emerging sectors.
-  * **Interactive Feature Identification:** Interactive markers allowing real-time pop-ups of localized entities (e.g., displaying names and sub-categories such as language schools like "مركز نوب الآفاق").
 
----
+### A. Interactive Geospatial Mapping Architecture
+To translate the cleaned dataset (`saihat_google_maps_updated.csv`) into structured visual intelligence, an advanced geospatial visualization pipeline was engineered using Python's **Folium** framework. This mapping layer acts as the primary graphical analytical output for studying Saihat City's commercial and public density.
 
-## 5. Interactive Dashboard & AI Integration (Future Milestone)
-To make the extracted insights actionable and easily accessible, the final phase of this project involves deploying an interactive analytical dashboard. 
+### B. Map Technical Configurations & Layout
+The implemented graphical map leverages several algorithmic and visual mechanisms to maximize readability and insight extraction:
+* **Precise Geographic Coordinates:** Utilizing the 100% complete coordinate matrix (including the 16 manually recovered missing instances), points are plotted via definitive `latitude` and `longitude` fields.
+* **Smart Marker Clustering:** To resolve visual crowding and overlapping in high-density commercial centers (e.g., main avenues), markers are systematically encapsulated into dynamic clusters that automatically partition and expand as the evaluator zooms into specific neighborhoods.
+* **Thematic Color-Coding (Graphical Analysis):** Establishments are mapped into multi-category layers and color-coded dynamically according to their sector classifications (e.g., *Retail & Shopping / تجزئة وتسوق*, *Restaurants & Cafes / مطاعم ومقاهي*, *Beauty & Personal Care / تجميل وعناية*, *Governmental & Community / جهات حكومية ومجتمعية*).
+* **Rich Data Popups:** Clicking on any marker triggers an interactive, real-time popup containing fully structured entity metadata, including:
+  * Official Business Name (in native Arabic notation).
+  * Specific Sub-Category & General Classification.
+  * Live Operational Status (e.g., Open Now / Closed).
+  * Consumer Performance Metrics (Exact Google Rating score and total `reviews_count`).
+  * Clean Formatted Contact Number.
 
-Instead of traditional manual front-end development, the deployment pipeline will leverage **AI-assisted development tools and automated low-code/no-code framework integrations** to build and optimize the user interface efficiently.
-
-### Key Components of the Proposed Dashboard:
-* **Interactive Geospatial Map Integration:** Embedding the generated Folium/Leaflet graphical map directly into the dashboard interface, preserving multi-category toggle filters.
-* **Service Density & Market Insights:** Dynamic charts illustrating which business categories are most dominant and identifying potential gaps or underserved sectors in the city.
-* **Operational Analytics:** Interactive filters displaying real-time operational statuses and peak working hours across different commercial zones.
-* **AI-Driven Analytics:** Utilizing embedded AI assistance to automatically generate summary metrics, detect anomalies in ratings, or provide natural language summaries of the dataset's top trends.
+### C. Analytical Insights Captured
+* **Commercial Hotspots:** Immediate graphical discovery of dense business clusters along key corridors and central intersections within Saihat City.
+* **Category Dominance Assessment:** Visual evidence confirming the proportional footprint of sectors, showcasing dominant trades like "تجزئة وتسوق" (163 records) and "مطاعم ومقاهي" (138 records) relative to public utilities.
+* **Coverage Gap Discovery:** The interactive layer provides immediate geospatial visibility into emerging or underserved operational sectors across the expanding zones of the city.
