@@ -134,6 +134,7 @@ The implemented graphical map leverages several algorithmic and visual mechanism
   * Clean Formatted Contact Number.
 
 ### C. Analytical Insights Captured
-* **Commercial Hotspots:** Immediate graphical discovery of dense business clusters along key corridors and central intersections within Saihat City.
+* **Autocorrelational Analysis:** Analyzed the geospatial distribution of ratings and number of reviews using Moran's I to see if highly rated or popular places tend to be clustered together.
+* **Spatial Correlation of Categories:** Analyzed the distribution of places from various categories using Join-count self-clustering to see which categories tend to cluster together and which tend to spread evenly.
 * **Category Dominance Assessment:** Visual evidence confirming the proportional footprint of sectors, showcasing dominant trades like "تجزئة وتسوق" (163 records) and "مطاعم ومقاهي" (138 records) relative to public utilities.
 * **Coverage Gap Discovery:** The interactive layer provides immediate geospatial visibility into emerging or underserved operational sectors across the expanding zones of the city.
